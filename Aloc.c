@@ -5,12 +5,11 @@
 typedef struct {
     int id;
     char titulo[MAX];
-    char autor[MAX];
 } Livro;
 
 int main() {
     FILE *file;
-    char *filename = "teste.bin";
+    char *filename = "D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-base.bin";
     file = fopen(filename, "rb");
 
     if (!file) {
@@ -36,7 +35,7 @@ int main() {
     // Exibindo os dados
     int num_livros = file_size / sizeof(Livro);
     for (int i = 0; i < num_livros; i++) {
-        printf("ID: %d, Título: %s, Autor: %s\n", livros[i].id, livros[i].titulo, livros[i].autor);
+        printf("ID: %d, Título: %s", livros[i].id, livros[i].titulo);
     }
 
     free(livros);

@@ -14,20 +14,20 @@ int main()
     }
     
 }
+*/
+typedef struct Livro Livro;
+struct Livro
+{
+    int id;
+    char titulo[50];
+    Livro* proximo;
+};
 
-    typedef struct
-    {
-        char titulo[50];
-        char autor[50]
-    }Livro;
-    
 int main()
 {
     Livro L;
-    FILE* arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/output/struct.bin","rb");
+    FILE* arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-base.bin","rb");
     fread(&L,sizeof(Livro),1,arq);
     fclose(arq);
-    printf("%s\n",L.autor);
-    printf("%s\n",L.titulo);
+    printf("%d-%s\n",L.id,L.titulo);
 }
-*/
