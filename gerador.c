@@ -86,9 +86,19 @@ putchar('\n');
 }
 int main()
 {
-inserir_ordenado(1,"Eduardo");
-inserir_ordenado(2,"Roberto");
-inserir_ordenado(5,"Carlos");
-inserir_ordenado(3,"Maduardo");
-imprimir_lista();
+    FILE* arq = fopen("texto-base.txt","r");
+    if (arq == NULL)
+    {
+        puts("falha ao tentar abrir o arquivo");
+        exit(1);
+    }
+    int id;
+    char titulo[50];
+    while (fscanf(arq,"%d\n%s",&id,titulo) != EOF)
+    {
+        inserir_ordenado(id,titulo);
+    }
+    fclose(arq);
+    
+    imprimir_lista();
 }
