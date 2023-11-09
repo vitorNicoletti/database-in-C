@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #define MAX 50
 
 
@@ -12,7 +13,14 @@ struct Livro
     char titulo[MAX];
     Livro* proximo;
 };
-
+void verif_arq(FILE*arq){
+    if (arq==NULL)
+    {
+        puts("erro ao abrir arquivo");
+        exit(1);
+    }
+    
+}
 void imprimir_lista(Livro* lista){
     Livro* aux = lista;
     while(aux != NULL){
@@ -21,23 +29,41 @@ void imprimir_lista(Livro* lista){
     }
 }
 
-void inserir_ordenado(int novo_valor, char novo_titulo[50], Livro** lista_daora) {
-    Livro* novo_livro = (Livro*)malloc(sizeof(Livro));
+Livro* inserir_ordenado(int novo_valor, char novo_titulo[50],Livro* lista_daora)
+{
+    Livro* novo_livro = (Livro*) malloc(sizeof(Livro));
     novo_livro->id = novo_valor;
     strcpy(novo_livro->titulo, novo_titulo);
-    novo_livro->proximo = NULL;
-
-    if (*lista_daora == NULL || (*lista_daora)->id >= novo_livro->id) {
-        novo_livro->proximo = *lista_daora;
-        *lista_daora = novo_livro;
-    } else {
-        Livro* aux = *lista_daora;
-        while (aux->proximo != NULL && aux->proximo->id < novo_livro->id) {
-            aux = aux->proximo;
+    
+    Livro* p=NULL;
+    Livro* q = lista_daora;
+    bool localizado = true;
+    while (q && localizado)
+    {
+        if (novo_valor <= q->id)
+        {
+            localizado=false;
         }
-        novo_livro->proximo = aux->proximo;
-        aux->proximo = novo_livro;
+        else
+        {
+            p=q;
+            q=q->proximo;
+        }
     }
+    if (p==NULL)
+    {
+        novo_livro->proximo = lista_daora;
+        //lista=novo_livro;
+        
+        lista_daora = novo_livro;
+    }
+    else
+    {
+        p->proximo = novo_livro;
+        novo_livro->proximo = q;  
+    }
+    return lista_daora;
+    
 }
 Livro* remover(int livro_id, Livro** lista, int* tam) {
     Livro *aux, *remover = NULL;
@@ -74,12 +100,33 @@ void buscar(Livro* lista, int livro_id) {
     printf("Livro nao encontrado\n");
 }
 
+void armazenar_binario(Livro *nova_lista,FILE*arquivo)
+{
+
+    Livro L;
+    
+    while(fread(&L,sizeof(Livro),1,arquivo))
+    {
+        inserir_ordenado(L.id,L.titulo, nova_lista);
+        printf("%d-%s\n",L.id,L.titulo);
+    };
+    imprimir_lista(nova_lista);
+}
+
+
 int main() {
+    FILE* arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-base.bin","rb");
+    verif_arq(arq);
+    Livro * lista = NULL;
+    armazenar_binario(lista,arq);
+
     int opcao;
     int livro_id;
     Livro* removido;
     int tam = 0;
-    Livro* lista = NULL;
+    
+    verif_arq(arq);
+
 
     do {
         printf("\nSelecione uma opcao:\n");
