@@ -1,32 +1,103 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#define MAX 50
 
-Livro* remover(int livro_id, Livro* lista)
+
+typedef struct Livro Livro;
+
+struct Livro
 {
+    int id;
+    char titulo[MAX];
+    Livro* proximo;
+};
+
+void imprimir_lista(Livro* lista){
+    Livro* aux = lista;
+    while(aux != NULL){
+        printf("ID: %d, Titulo: %s\n", aux->id, aux->titulo);
+        aux = aux->proximo;
+    }
+}
+
+Livro* inserir_ordenado(int novo_valor, char novo_titulo[50],Livro* lista_daora)
+{
+    Livro* novo_livro = (Livro*) malloc(sizeof(Livro));
+    novo_livro->id = novo_valor;
+    strcpy(novo_livro->titulo, novo_titulo);
+    
+    Livro* p=NULL;
+    Livro* q = lista_daora;
+    bool localizado = true;
+    while (q && localizado)
+    {
+        if (novo_valor <= q->id)
+        {
+            localizado=false;
+        }
+        else
+        {
+            p=q;
+            q=q->proximo;
+        }
+    }
+    if (p==NULL)
+    {
+        novo_livro->proximo = lista_daora;
+        //lista=novo_livro;
+        
+        lista_daora = novo_livro;
+    }
+    else
+    {
+        p->proximo = novo_livro;
+        novo_livro->proximo = q;  
+    }
+    return lista_daora;
+    
+}
+Livro* remover(int livro_id, Livro** lista, int* tam) {
     Livro *aux, *remover = NULL;
 
-  if(lista->inicio){
-    if(lista->inicio->id == livro_id){
-      remover = lista->inicio;
-      lista->inicio = remover->proximo;
-      lista->tam--;
+    if (*lista) {
+        if ((*lista)->id == livro_id) {
+            remover = *lista;
+            *lista = remover->proximo;
+            (*tam)--;
+        } else {
+            Livro* aux = *lista;
+            while (aux->proximo && aux->proximo->id != livro_id) {
+                aux = aux->proximo;
+            }
+            if (aux->proximo) {
+                remover = aux->proximo;
+                aux->proximo = remover->proximo;
+                (*tam)--;
+            }
+        }
     }
-    else{
-      Livro* aux = lista->inicio;
-      while(aux->proximo && aux->proximo->id != livro_id){
-        aux = aux->proximo;
-      if(aux->proximo){
-        remover = aux->proximo;
-        aux->proximo = remover->proximo;
-        lista->tam--;
-      }
-    }
-  }
     return remover;
-}   
+}
+
+void buscar(Livro* lista, int livro_id) {
+    Livro* aux = lista;
+    while (aux != NULL) {
+        if (aux->id == livro_id) {
+            printf("Livro encontrado: ID: %d, Titulo: %s\n", aux->id, aux->titulo);
+            return;
+        }
+        aux = aux->proximo;
+    }
+    printf("Livro nao encontrado\n");
+}
 
 int main() {
     int opcao;
+    int livro_id;
     Livro* removido;
+    int tam = 0;
+    Livro* lista = NULL;
 
     do {
         printf("\nSelecione uma opcao:\n");
@@ -38,30 +109,35 @@ int main() {
         printf("Digite o numero da opcao desejada: ");
         scanf("%d", &opcao);
 
-        switch(opcao) {
+        switch (opcao) {
             case 1:
                 printf("Esses sao os Livros\n");
-                imprimir_lista(Livro* lista);
+                imprimir_lista(lista);
                 break;
             case 2:
                 printf("Insira a ID e o titulo:\n");
-                inserir_ordenado(int novo_valor, char novo_titulo[50],Livro* lista_daora)
+                int novo_valor;
+                char novo_titulo[MAX];
+                scanf("%d", &novo_valor);
+                scanf("%s", novo_titulo);
+                inserir_ordenado(novo_valor, novo_titulo, &lista);
+                tam++;
                 break;
             case 3:
                 printf("Informe a ID do livro que deseja excluir\n");
                 scanf("%d", &livro_id);
-                removido = Livro* remover(%Livro, livro_id);
-                if(removido){
-                  printf("Livro removido: %d\n", removido->id);
-                  free(removido);
-                }
-                else{
-                  printf("Livro nao encontrado\n");
+                removido = remover(livro_id, &lista, &tam);
+                if (removido) {
+                    printf("Livro removido: %d\n", removido->id);
+                    free(removido);
+                } else {
+                    printf("Livro nao encontrado\n");
                 }
                 break;
             case 4:
-                printf("Digite o livro que esta procurando:\n");
-                buscar();
+                printf("Digite o ID do livro que esta procurando:\n");
+                scanf("%d", &livro_id);
+                buscar(lista, livro_id);
                 break;
             case 0:
                 printf("Encerrando...\n");
@@ -69,7 +145,7 @@ int main() {
             default:
                 printf("Opcao invalida. Tente novamente.\n");
         }
-    } while(opcao != 0);
+    } while (opcao != 0);
 
     return 0;
 }
