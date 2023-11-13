@@ -63,7 +63,7 @@ void imprimir_lista(Livro *lista) {
 int main() {
   Livro L;
   Livro *nova_lista = NULL;
-  FILE *arq = fopen("texto-base.bin", "rb");
+  FILE *arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-editado.bin", "rb");
 
   while (fread(&L, sizeof(Livro), 1, arq)) {
     inserir_ordenado(L.id, L.titulo, nova_lista);
