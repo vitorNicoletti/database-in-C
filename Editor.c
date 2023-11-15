@@ -1,127 +1,23 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#define MAX 50
+#include "funcoes_editor.h"
 
-typedef struct Livro Livro;
-
-struct Livro {
-    int id;
-    char titulo[MAX];
-    Livro *proximo;
-};
-
-void verif_arq(FILE *arq) {
-    if (arq == NULL) {
-        puts("Erro ao abrir arquivo");
-        exit(1);
-    }
-}
-
-void imprimir_lista(Livro *lista) {
-    Livro *aux = lista;
-    while (aux != NULL) {
-        printf("ID: %d, Titulo: %s\n", aux->id, aux->titulo);
-        aux = aux->proximo;
-    }
-}
-
-void inserir_binario(Livro* lista, FILE* arq) {
-    verif_arq(arq);
-    Livro* q = lista;
-    while (q != NULL) {
-        fwrite(q, sizeof(Livro), 1, arq);
-        q = q->proximo;
-    }
-}
-
-Livro * inserir_ordenado(int novo_valor, char novo_titulo[MAX], Livro *lista_daora) {
-    Livro *novo_livro = (Livro *)malloc(sizeof(Livro));
-    novo_livro->id = novo_valor;
-    strcpy(novo_livro->titulo, novo_titulo);
-
-    Livro *p = NULL;
-    Livro *q = lista_daora;
-    bool localizado = true;
-
-    while (q && localizado) {
-        if (novo_valor <= q->id) {
-            localizado = false;
-        } else {
-            p = q;
-            q = q->proximo;
-        }
+int main(int argc, char* argv[]) /*Recebe o arquivo de entrada e arquivo de saida como parametro*/
+{
+    if (argc != 3){ /*Verifica se os parametro foram informados*/
+        printf("Necessario inserir o nome do programa, arquiovo de entrada e o arquivo de saida");
+        return 1;
     }
 
-    if (p == NULL) {
-        novo_livro->proximo = lista_daora;
-        lista_daora = novo_livro;
-    } else {
-        p->proximo = novo_livro;
-        novo_livro->proximo = q;
-    }
-    return lista_daora;
-}
+    const char* arquivo_entrada = argv[1];
+    const char* arquivo_saida = argv[2];
 
-Livro * remover(Livro *lista, int livro_id) {
-    Livro *resposta = NULL;
-    Livro *p = NULL;
-    Livro *aux = lista; 
-    while (aux != NULL && resposta == NULL) {
-        if(aux->id == livro_id) {
-            if (p == NULL) {
-                free(lista);
-                resposta = aux->proximo;
-            } else {
-                p->proximo = aux->proximo;
-                free(aux);
-                resposta = lista;
-            }
-        }
-        p = aux;
-        aux = aux->proximo;
-    }
-    return resposta;
-}
-
-Livro* buscar_por_id(Livro *lista, int livro_id) {
-    if (lista->id == livro_id)
-        return lista;
-    
-    if (lista->proximo == NULL)
-        return NULL;
-    else
-        return buscar_por_id(lista->proximo, livro_id);
-}
-
-Livro *armazenar_binario(Livro *nova_lista, FILE *arquivo) {
-    Livro L;
-    while (fread(&L, sizeof(Livro), 1, arquivo)) {
-        nova_lista = inserir_ordenado(L.id, L.titulo, nova_lista);
-    }
-    return nova_lista;
-}
-
-void liberar_lista(Livro *lista) {
-    if (lista != NULL) {
-        if (lista->proximo != NULL) {
-            liberar_lista(lista->proximo);
-            lista->proximo = NULL;
-        }
-        free(lista);
-    }
-}
-
-int main() {
-    FILE *arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-base.bin", "rb");
-    verif_arq(arq);
+    FILE *arq = fopen(arquivo_entrada, "rb");
+    verif_arq(arq); /*Verifica se o arquivo foi aberto corretamente*/
 
     Livro *lista = NULL;
-    lista = armazenar_binario(lista, arq);
+    lista = armazenar_binario(lista, arq); /* Armazena a lista*/
     int opcao;
     int livro_id;
-    bool modificado = false;
+    bool modificado = false; /*Booleano para verificar se o arquivo foi modificado*/
 
     do {
         char opcoes[] = 
@@ -140,7 +36,7 @@ int main() {
         switch (opcao) {
             case 1:
                 printf("Esses sao os Livros\n");
-                imprimir_lista(lista);
+                imprimir_lista(lista);  /*Imprime todos os lvros*/
                 break;
 
             case 2:
@@ -150,8 +46,8 @@ int main() {
                 scanf("%d", &novo_valor);
                 scanf("%s", novo_titulo);
 
-                if (buscar_por_id(lista, novo_valor) == NULL) {
-                    inserir_ordenado(novo_valor, novo_titulo, lista);
+                if (buscar_por_id(lista, novo_valor) == NULL) { /*Procura se o valor do id nao existe*/
+                    inserir_ordenado(novo_valor, novo_titulo, lista); /*se nao existir insere de forma ordenada*/
                     puts("Adicionado com sucesso!");
                     modificado = true;
                 } else {
@@ -163,10 +59,10 @@ int main() {
                 printf("Informe a ID do livro que deseja excluir\n");
                 scanf("%d", &livro_id);
                 
-                if (buscar_por_id(lista, livro_id) == NULL) {
+                if (buscar_por_id(lista, livro_id) == NULL) {  /*Procura se o ID existe*/
                     puts("Livro nao encontrado!");
                 } else {
-                    lista = remover(lista, livro_id);
+                    lista = remover(lista, livro_id); /* Se encontrado exclui o livro*/
                     printf("Livro removido: %d\n", livro_id);
                     modificado = true;
                 }
@@ -175,7 +71,7 @@ int main() {
             case 4:
                 puts("Digite o ID do livro que esta procurando:\n");
                 scanf("%d", &livro_id);
-                Livro* L = buscar_por_id(lista, livro_id);
+                Livro* L = buscar_por_id(lista, livro_id); /*Procura o ID*/
                 if (L == NULL)
                     printf("Livro de ID:%d nao encontrado!\n", livro_id);
                 else
@@ -183,9 +79,9 @@ int main() {
                 break;
 
             case 5:
-                arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-editado.bin", "wb");
-                verif_arq(arq);
-                inserir_binario(lista, arq);
+                arq = fopen(arquivo_saida, "wb");
+                verif_arq(arq); /*Verifica se o arquivo foi aberto*/
+                inserir_binario(lista, arq); /*Insere a nova lista*/
                 puts("Arquivo criado com sucesso!");
                 break;
 
@@ -198,12 +94,12 @@ int main() {
         }
     } while (opcao != 0);
 
-    if (modificado) {
-        arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-editado.bin", "wb");
+    if (modificado) { /*Salva a modificaçao feita na nova lista*/
+        arq = fopen(arquivo_saida, "wb");
         inserir_binario(lista, arq);
     }
     
-    liberar_lista(lista);
+    liberar_lista(lista); /*Libera a memoria*/
 
     return 0;
 }
