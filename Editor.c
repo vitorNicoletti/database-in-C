@@ -135,7 +135,16 @@ Livro *armazenar_binario(Livro *nova_lista, FILE *arquivo) {
   };
   return nova_lista;
 }
-
+void liberar_lista(Livro *lista) 
+{
+    if (lista != NULL) {
+        if (lista->proximo != NULL) {
+            liberar_lista(lista->proximo);
+            lista->proximo = NULL;
+        }
+        free(lista);
+    }
+}
 
 int main() 
 {
@@ -214,6 +223,7 @@ int main()
     while (opcao != 0);
     arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-editado.bin","wb");
     inserir_binario(lista,arq);
+    liberar_lista(lista);
 
   return 0;
 }

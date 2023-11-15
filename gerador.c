@@ -31,7 +31,16 @@ void inserir_binario(Livro* lista,FILE*arq)
     }
 }
 
-
+void liberar_lista(Livro *lista) 
+{
+    if (lista != NULL) {
+        if (lista->proximo != NULL) {
+            liberar_lista(lista->proximo);
+            lista->proximo = NULL;
+        }
+        free(lista);
+    }
+}
 Livro* inserir_ordenado(int novo_valor, char novo_titulo[50],Livro* lista_daora)
 {
     Livro* novo_livro = (Livro*) malloc(sizeof(Livro));
@@ -98,5 +107,7 @@ int main()
     puts("\n");
     imprimir_lista(lista);
     arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-base.bin","wb");
-    inserir_binario(lista,arq); 
+    inserir_binario(lista,arq);
+    liberar_lista(lista);
+
 }

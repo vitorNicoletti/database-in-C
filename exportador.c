@@ -54,26 +54,38 @@ Livro *armazenar_binario(Livro *nova_lista, FILE *arquivo) {
   };
   return nova_lista;
 }
-void binario_para_texto(Livro *lista)
-{
+void binario_para_texto(Livro *lista) {
+    FILE *arquivo_texto = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-final.txt", "wt");
 
-
-
-
-}
-int main(){
-    Livro *lista = NULL;
-    FILE * arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-editado.bin","rb");
-    armazenar_binario(lista,arq);
-
-    
-    int id_aux;
-    char titulo_aux[MAX];
-    
-    while ()
-    {
-        fwrite(&id_aux,sizeof(int),1,arq);
-        fwrite(titulo_aux,MAX,1,arq);
+    Livro *p = lista;
+    while (p != NULL) {
+        fprintf(arquivo_texto, "%d\n%s\n", p->id, p->titulo);
+        p = p->proximo;
     }
+
+    fclose(arquivo_texto);
+}
+
+void liberar_lista(Livro *lista) {
+    if (lista != NULL) {
+        if (lista->proximo != NULL) {
+            liberar_lista(lista->proximo);
+            lista->proximo = NULL;
+        }
+        free(lista);
+    }
+}
+
+int main() {
+    Livro *lista = NULL;
+    FILE *arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-editado.bin", "rb");
+
+    lista = armazenar_binario(lista, arq);
+
     fclose(arq);
+
+    binario_para_texto(lista);
+    liberar_lista(lista);
+
+    return 0;
 }
