@@ -1,113 +1,32 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-typedef struct Livro Livro;
+#include "funcoes_gerador.h"
 
-struct Livro
-{
-    int id;
-    char titulo[50];
-    Livro* proximo;
-};
 
-void verif_arq(FILE*arq){
-    if (arq==NULL)
-    {
-        puts("erro ao abrir arquivo");
-        exit(1);
-    }
-    
-}
-void inserir_binario(Livro* lista,FILE*arq)
+int main(int argc, char* argv[]) /*Recebe o nome dos arquivos de entrada e saida como parametro*/
 {
-    verif_arq(arq);
+    if (argc != 3){  /*Verifica se os parametros foram informados*/
+        printf("Necessario inserir o nome do programa, arquiovo de entrada e o arquivo de saida"); 
+        return 1;
+    }
 
-    Livro* q = lista;
-    while (q!= NULL)
-    {
-        fwrite(q,sizeof(Livro),1,arq);
-        q = q->proximo;
-    }
-}
+    const char* arquivo_entrada = argv[1];
+    const char* arquivo_saida = argv[2];
 
-void liberar_lista(Livro *lista) 
-{
-    if (lista != NULL) {
-        if (lista->proximo != NULL) {
-            liberar_lista(lista->proximo);
-            lista->proximo = NULL;
-        }
-        free(lista);
-    }
-}
-Livro* inserir_ordenado(int novo_valor, char novo_titulo[50],Livro* lista_daora)
-{
-    Livro* novo_livro = (Livro*) malloc(sizeof(Livro));
-    novo_livro->id = novo_valor;
-    strcpy(novo_livro->titulo, novo_titulo);
-    
-    Livro* p=NULL;
-    Livro* q = lista_daora;
-    bool localizado = true;
-    while (q && localizado)
-    {
-        if (novo_valor <= q->id)
-        {
-            localizado=false;
-        }
-        else
-        {
-            p=q;
-            q=q->proximo;
-        }
-    }
-    if (p==NULL)
-    {
-        novo_livro->proximo = lista_daora;
-        //lista=novo_livro;
-        
-        lista_daora = novo_livro;
-    }
-    else
-    {
-        p->proximo = novo_livro;
-        novo_livro->proximo = q;  
-    }
-    return lista_daora;
-    
-}
-void imprimir_lista(Livro* lista)
-{
-    
-    Livro *P = lista;
-    
-    while (P != NULL)
-    {
-    printf("%d-%s ", P->id,P->titulo);
-    P = P->proximo;
-    }
-    putchar('\n');
-}
-
-int main()
-{
     Livro* lista = NULL;
-    FILE* arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-base.txt","r");
-    verif_arq(arq);
+    FILE* arq = fopen(arquivo_entrada,"r"); /* Abre o arquivo */
+    verif_arq(arq); /* Verifica se o arquivo foi encontrado */
     int id;
     char titulo[50];
-    while (fscanf(arq,"%d\n%s",&id,titulo) != EOF)
+    while (fscanf(arq,"%d\n%s",&id,titulo) != EOF) /* Percorre o arquivo até o final */
     {
-        lista = inserir_ordenado(id,titulo,lista);
+        lista = inserir_ordenado(id,titulo,lista); /* Organiza de forma ordenada */
         
     }
     fclose(arq);
     printf("%d",lista->id);
     puts("\n");
-    imprimir_lista(lista);
-    arq = fopen("D:/Jogos/code/Programacao Imperativa/trabalho 2/texto-base.bin","wb");
-    inserir_binario(lista,arq);
-    liberar_lista(lista);
+    imprimir_lista(lista); /*Mostra a lista organizada*/
+    arq = fopen(arquivo_saida,"wb");
+    inserir_binario(lista,arq); /*insere a nova lista*/
+    liberar_lista(lista); /*libera a memoria*/
 
 }
